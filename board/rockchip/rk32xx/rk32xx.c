@@ -242,6 +242,7 @@ void check_force_enter_ums_mode(void)
 			printf("usb connected to SDP, force enter ums mode\n");
 			force_ums = true;
 			// unlock usb current limit and re-enable EMMC
+			usb_current_limit_ctrl(true);
 			rk3288_maskrom_ctrl(true);
 			mdelay(10);
 		}
