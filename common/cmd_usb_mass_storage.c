@@ -86,8 +86,10 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	}
 
 	ums = ums_init(devtype, devnum);
-	if (!ums)
+	if (!ums) {
+		printf("ums_init fail\n");
 		return CMD_RET_FAILURE;
+	}
 
 	controller_index = (unsigned int)(simple_strtoul(
 				usb_controller,	NULL, 0));
