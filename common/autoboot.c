@@ -302,19 +302,10 @@ void autoboot_command(const char *s)
 		local_args[1]=str2;
 		local_args[2]=str3;
 		local_args[3]=str4;
-		if (do_usb_mass_storage(NULL, 0, 4, local_args) == -ETIMEDOUT) {
-			// lock usb current limit and do not touch the maskrom jumper setting
-			usb_current_limit_ctrl(false);
-			rk3288_maskrom_ctrl(false);
-
-			// because we skip rkloader_run_misc_cmd() when force enable UMS,
-			// we need to run it again, if we exit the UMS mode
-			printf("check misc command after ums mode timeout\n");
-			/* unknown reboot cause (typically because of a cold boot).
-			 * check if we had misc command to boot recovery.
-			 */
-			rkloader_run_misc_cmd();
-		}
+		do_usb_mass_storage(NULL, 0, 4, local_args);
+		// lock usb current limit and do not touch the maskrom jumper setting
+		usb_current_limit_ctrl(false);
+		rk3288_maskrom_ctrl(false);
 	}
 	if (stored_bootdelay != -1 && s && !abortboot(stored_bootdelay)) {
 #if defined(CONFIG_AUTOBOOT_KEYED) && !defined(CONFIG_AUTOBOOT_KEYED_CTRLC)

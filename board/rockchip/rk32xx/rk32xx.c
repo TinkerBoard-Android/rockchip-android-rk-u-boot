@@ -19,18 +19,6 @@
 #ifdef CONFIG_OPTEE_CLIENT
 #include "../common/rkloader/attestation_key.h"
 #endif
-enum project_id {
-	TinkerBoardS = 0,
-	TinkerBoardS_HV = 1,
-	TinkerBoardR_BR = 4,
-	TinkerBoard  = 7,
-};
-
-enum pcb_id {
-	SR,
-	ER,
-	PR,
-};
 
 extern bool force_ums;
 
@@ -210,19 +198,6 @@ void rk3288_maskrom_ctrl(bool enable_emmc)
 
 void check_force_enter_ums_mode(void)
 {
-	enum pcb_id pcbid;
-	enum project_id projectid;
-
-	// enable projectid pull down and set it to input
-	gpio_pull_updown(GPIO_BANK2|GPIO_A1, GPIOPullUp);
-	gpio_pull_updown(GPIO_BANK2|GPIO_A2, GPIOPullUp);
-	gpio_pull_updown(GPIO_BANK2|GPIO_A3, GPIOPullUp);
-	gpio_direction_input(GPIO_BANK2|GPIO_A1);
-	gpio_direction_input(GPIO_BANK2|GPIO_A2);
-	gpio_direction_input(GPIO_BANK2|GPIO_A3);
-
-	// set pcbid to input
-	gpio_direction_input(GPIO_BANK2|GPIO_B0);
 
 	// disable SDP pull up/down and set it to input
 	gpio_pull_updown(GPIO_BANK6|GPIO_A5, PullDisable);
@@ -230,26 +205,17 @@ void check_force_enter_ums_mode(void)
 
 	mdelay(10);
 
-	// read project id
-	projectid = gpio_get_value(GPIO_BANK2|GPIO_A1) | gpio_get_value(GPIO_BANK2|GPIO_A2)<<1 | gpio_get_value(GPIO_BANK2|GPIO_A3)<<2;
-
-	// read pcbid
-	pcbid = gpio_get_value(GPIO_BANK2|GPIO_B0) | gpio_get_value(GPIO_BANK2|GPIO_B1)<<1 | gpio_get_value(GPIO_BANK2|GPIO_B2)<<2;
-
-	// only TinkerBoard S PR stage PCB & TinkerBoard S/HV has this function
-	if(((projectid == TinkerBoardS) && (pcbid >= ER))
-	   || (projectid == TinkerBoardS_HV)){
-		printf("PC event = 0x%x\n", gpio_get_value(GPIO_BANK6|GPIO_A5));
-		if(gpio_get_value(GPIO_BANK6|GPIO_A5) == 1){
-			// SDP detected, enable EMMC and unlock usb current limit
-			printf("usb connected to SDP, force enter ums mode\n");
-			force_ums = true;
-			// unlock usb current limit and re-enable EMMC
-			usb_current_limit_ctrl(true);
-			rk3288_maskrom_ctrl(true);
-			mdelay(10);
-		}
-	}
+	printf("PC event = 0x%x\n", gpio_get_value(GPIO_BANK6|GPIO_A5));
+	if(gpio_get_value(GPIO_BANK6|GPIO_A5) == 1){
+		// SDP detected, enable EMMC and unlock usb current limit
+		printf("usb connected to SDP, force enter ums mode\n");
+		force_ums = true;
+		// unlock usb current limit and re-enable EMMC
+		usb_current_limit_ctrl(true);
+		rk3288_maskrom_ctrl(true);
+		mdelay(10);
+	} else
+		usb_current_limit_ctrl(false);
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
