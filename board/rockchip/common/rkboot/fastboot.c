@@ -20,8 +20,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern uint32 SdmmcGetSDCardBootMode(void);
-
 #ifdef CONFIG_CMD_FASTBOOT
 extern void fbt_fastboot_init(void);
 #endif
@@ -649,8 +647,7 @@ void board_fbt_preboot(void)
 	}
 #endif
 	else {
-		printf("SdmmcGetSDCardBootMode = %lu\n" , (unsigned long)SdmmcGetSDCardBootMode());
-		if(force_ums && (SdmmcGetSDCardBootMode() != SDMMC_SDCARD_BOOT)) return;
+		if(force_ums) return;
 
 		printf("\n%s: check misc command.\n", __func__);
 		/* unknown reboot cause (typically because of a cold boot).
