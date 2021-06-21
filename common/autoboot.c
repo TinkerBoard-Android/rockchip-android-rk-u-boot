@@ -306,6 +306,10 @@ void autoboot_command(const char *s)
 		// lock usb current limit and do not touch the maskrom jumper setting
 		usb_current_limit_ctrl(false);
 		rk3288_maskrom_ctrl(false);
+
+		// because we skip rkloader_run_misc_cmd() when force enable UMS,
+		// we need to run it again, after exit the UMS mode.
+		rkloader_run_misc_cmd();
 	}
 	if (stored_bootdelay != -1 && s && !abortboot(stored_bootdelay)) {
 #if defined(CONFIG_AUTOBOOT_KEYED) && !defined(CONFIG_AUTOBOOT_KEYED_CTRLC)
