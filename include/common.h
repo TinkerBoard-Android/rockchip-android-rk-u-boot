@@ -541,6 +541,8 @@ int board_postclk_init (void); /* after clocks/timebase, before env/serial */
 int board_early_init_r (void);
 void board_poweroff (void);
 void check_force_enter_ums_mode (void);
+void rk3288_maskrom_ctrl (bool);
+void usb_current_limit_ctrl (bool);
 
 #if defined(CONFIG_SYS_DRAM_TEST)
 int testdram(void);

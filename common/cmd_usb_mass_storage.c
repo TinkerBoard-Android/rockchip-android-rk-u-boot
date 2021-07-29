@@ -85,9 +85,13 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 		devnum  = argv[2];
 	}
 
+	rk3288_maskrom_ctrl(true);
+
 	ums = ums_init(devtype, devnum);
-	if (!ums)
+	if (!ums) {
+		rk3288_maskrom_ctrl(false);
 		return CMD_RET_FAILURE;
+	}
 
 	controller_index = (unsigned int)(simple_strtoul(
 				usb_controller,	NULL, 0));
@@ -99,12 +103,14 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	rc = fsg_init(ums);
 	if (rc) {
 		error("fsg_init failed");
+		rk3288_maskrom_ctrl(false);
 		return CMD_RET_FAILURE;
 	}
 
 	rc = g_dnl_register("usb_dnl_ums");
 	if (rc) {
 		error("g_dnl_register failed");
+		rk3288_maskrom_ctrl(false);
 		return CMD_RET_FAILURE;
 	}
 
@@ -161,6 +167,9 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	}
 exit:
 	g_dnl_unregister();
+
+	rk3288_maskrom_ctrl(false);
+
 	return rc;
 }
 

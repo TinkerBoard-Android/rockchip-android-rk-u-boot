@@ -212,6 +212,12 @@ static int initr_icache_enable(void)
 }
 #endif
 
+static int initr_unlock_current_limit(void)
+{
+	usb_current_limit_ctrl(true);
+	return 0;
+}
+
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 static int initr_unlock_ram_in_cache(void)
 {
@@ -739,6 +745,7 @@ init_fnc_t init_sequence_r[] = {
 	initr_caches,
 #endif
 	initr_reloc_global_data,
+	initr_unlock_current_limit,
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 	initr_unlock_ram_in_cache,
 #endif
